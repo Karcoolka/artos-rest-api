@@ -1,0 +1,148 @@
+:root {
+  color: #1f2933;
+  background: #f4efe6;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  line-height: 1.5;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+.page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 1rem 3rem;
+}
+
+header {
+  margin-bottom: 1.5rem;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0 0 0.75rem;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid #d9d0c3;
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.grid {
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 900px) {
+  .grid {
+    grid-template-columns: 1.2fr 0.8fr;
+    align-items: start;
+  }
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+label.inline {
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid #c8bdb0;
+  border-radius: 8px;
+  background: #fffdf9;
+}
+
+fieldset {
+  border: 1px solid #d9d0c3;
+  border-radius: 8px;
+  margin: 0 0 1rem;
+  padding: 0.75rem 1rem;
+}
+
+.lines {
+  margin-bottom: 1rem;
+}
+
+.line-row {
+  display: grid;
+  grid-template-columns: 1fr 100px auto;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+button {
+  border: none;
+  border-radius: 8px;
+  padding: 0.7rem 1rem;
+  background: #8b4513;
+  color: #fff;
+  cursor: pointer;
+}
+
+button.secondary {
+  background: #ede4d8;
+  color: #1f2933;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.muted {
+  color: #66727a;
+}
+
+.error {
+  color: #b42318;
+}
+
+.success {
+  color: #067647;
+}
+
+.orders-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.orders-list li {
+  display: grid;
+  gap: 0.15rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #eee4d7;
+}
+
+.orders-list li:last-child {
+  border-bottom: none;
+}

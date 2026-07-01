@@ -28,17 +28,30 @@ scripts/       Development helpers
 
 ```bash
 npm install
+npm install --prefix client
 
-# Start PostgreSQL (Linux: use sudo if Docker requires it)
+# Start PostgreSQL
 npm run db:up
+# or: docker compose up -d postgres
 npm run db:wait
 npm run db:migrate
 npm run db:seed
 
+# API only
 npm run dev
+
+# API + frontend together
+npm run dev:all
 ```
 
-The API runs at `http://localhost:3000`.
+The API runs at `http://localhost:3000`. The frontend dev server runs at `http://localhost:5173` and proxies `/api` to the backend.
+
+For production, build the client and start the API — Express serves the built UI from `client/dist`:
+
+```bash
+npm run build
+npm run start
+```
 
 On first migration, use the name `init` when prompted.
 
@@ -93,8 +106,11 @@ Public routes (no API key): `GET /`, `GET /health`.
 | Script | Description |
 |--------|-------------|
 | `npm run dev` | Start API in watch mode |
-| `npm run build` | Compile TypeScript to `dist/` |
-| `npm run start` | Run compiled API |
+| `npm run dev:client` | Start Vite frontend |
+| `npm run dev:all` | Start API and frontend together |
+| `npm run build` | Build API and frontend |
+| `npm run build:client` | Build frontend only |
+| `npm run start` | Run compiled API (serves UI if built) |
 | `npm test` | Run tests |
 | `npm run db:up` | Start Postgres container |
 | `npm run db:down` | Stop Postgres container |
@@ -102,6 +118,8 @@ Public routes (no API key): `GET /`, `GET /health`.
 | `npm run db:migrate` | Apply Prisma migrations |
 | `npm run db:seed` | Load sample data |
 | `npm run db:reset` | Reset database, migrate, and seed |
+
+After running tests, dev API keys still work — tests use a separate `artos_test` database.
 
 ## Environment
 
