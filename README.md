@@ -138,6 +138,56 @@ Browse test data: `DATABASE_URL="postgresql://artos:artos@localhost:5432/artos_t
 
 Dev database: `artos`. Test database: `artos_test` (created automatically before `npm test`).
 
+## Design decisions
+
+I tried to keep things simple and focus on the main flow: a partner submits an order and it gets saved correctly.
+
+**Database (PostgreSQL + Prisma)**  
+An order has a header (who, when, pickup/delivery) and multiple line items, so a relational database made sense to me. I picked PostgreSQL because I wanted proper foreign keys and transactions. Prisma helped me with migrations, seed data, and TypeScript types — I didn't want to write all SQL by hand for this project.
+
+**User and Contact as separate tables**  
+From the task description, a partner is a company (hotel, restaurant…) but the order is placed by a real person. So I modeled `User` as the company (they authenticate with an API key) and `Contact` as the person who submits the order. Every order links to both — that way I know which organization ordered and who actually sent it.
+
+**CRUD only on orders**  
+The assignment was about submitting orders, not building a full admin panel. Contacts and products come from seed data and are read-only in the API — just enough to fill the order form. I put create/read/update/delete on orders because that's the main thing a partner needs.
+
+**API key auth**  
+Auth wasn't required, but I still wanted a minimal way to know *which* partner is calling the API. An API key in the header felt like the simplest B2B approach for a project this size. Keys are hashed with bcrypt.
+
+**Project structure**  
+I split the backend into routes, controllers, services, and validators. It's probably more layers than strictly necessary for a small app, but it kept things readable for me — HTTP stuff in controllers, business rules in services, input validation in Zod schemas. I'm still getting comfortable with this pattern, but it made testing easier.
+
+**React frontend in the same repo**  
+I added a small Vite + React form so I could click through the flow, not only test with curl. In dev, the UI runs on port 5173 and proxies `/api` to Express. After `npm run build`, Express serves the static files so everything runs on one port.
+
+**Separate test database (`artos_test`)**  
+Integration tests reset data, so they run against a separate database and don't touch dev seed data.
+
+## With more time
+
+- Add **company tax ID (IČO)** and optional delivery address on orders
+- **Multi-tenant bakery** model (each bakery is a tenant; partners belong to a bakery)
+- Richer **order lifecycle** (`confirmed`, `in production`, `delivered`, `cancelled`) and audit log
+- **Pricing** on products and order totals
+- **Order cutoff rules** (e.g. orders for tomorrow must be placed before 14:00)
+- **Role-based auth** (bakery admin vs partner) instead of a flat API key
+- Frontend: order detail, edit, and delete using the existing PATCH/DELETE endpoints
+- Pagination and filtering on `GET /orders`
+- CI pipeline (GitHub Actions) with Postgres service container
+
+## Deliberately skipped
+
+| Area | Why |
+|------|-----|
+| Tax ID (IČO) on partners | Scope focused on order submission flow; company identity is represented by name + API key for now |
+| Bakery-as-tenant in ERP | Single-bakery assumption keeps the model small; partner isolation via `user_id` is enough for this exercise |
+| OAuth / JWT | Brief asked to keep auth simple |
+| Product/contact admin API | Seed data is sufficient; partners only need read access to place orders |
+| Prices and invoices | Out of scope for “submit an order” |
+| Delivery time windows | Date-only delivery field covers the minimum requirement |
+| Full UI for all CRUD endpoints | UI covers create + list; remaining operations are available via API (Postman/curl) |
+| Production hardening | No rate limiting, secret management, or HTTPS — local/hobby setup |
+
 ## Environment
 
 Configuration lives in `.env` (local development credentials only).
