@@ -31,28 +31,27 @@ npm run install:all
 
 # Start PostgreSQL
 npm run db:up
-# Linux without docker group: sudo docker compose up -d postgres
 npm run db:wait
+# OR Linux: sudo docker compose up -d postgres
+
 npm run db:migrate
 npm run db:seed
 
 # API only
 npm run dev
 
-# API + frontend together
+# Optionaly: API + frontend together
 npm run dev:all
 ```
 
-The API runs at `http://localhost:3000`. The frontend dev server runs at `http://localhost:5173` and proxies `/api` to the backend.
+The API runs at `http://localhost:3000`. 
+The frontend dev server runs at `http://localhost:5173` and proxies `/api` to the backend.
 
-For production, build the client and start the API — Express serves the built UI from `client/dist`:
 
 ```bash
 npm run build
 npm run start
 ```
-
-On first migration, use the name `init` when prompted.
 
 ### Development API keys
 
