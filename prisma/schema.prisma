@@ -1,0 +1,80 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum FulfillmentType {
+  pickup
+  delivery
+}
+
+enum OrderStatus {
+  submitted
+}
+
+model User {
+  id         String    @id @default(uuid())
+  name       String
+  apiKeyHash String    @map("api_key_hash")
+  active     Boolean   @default(true)
+  createdAt  DateTime  @default(now()) @map("created_at")
+  contacts   Contact[]
+  orders     Order[]
+
+  @@map("users")
+}
+
+model Contact {
+  id      String  @id @default(uuid())
+  userId  String  @map("user_id")
+  name    String
+  email   String
+  phone   String?
+  user    User    @relation(fields: [userId], references: [id])
+  orders  Order[]
+
+  @@map("contacts")
+}
+
+model Product {
+  id         String      @id @default(uuid())
+  sku        String      @unique
+  name       String
+  active     Boolean     @default(true)
+  orderItems OrderItem[]
+
+  @@map("products")
+}
+
+model Order {
+  id                    String          @id @default(uuid())
+  orderNumber           String          @unique @map("order_number")
+  userId                String          @map("user_id")
+  contactId             String          @map("contact_id")
+  requestedDeliveryDate DateTime        @map("requested_delivery_date") @db.Date
+  fulfillment           FulfillmentType
+  status                OrderStatus     @default(submitted)
+  notes                 String?
+  createdAt             DateTime        @default(now()) @map("created_at")
+  user                  User            @relation(fields: [userId], references: [id])
+  contact               Contact         @relation(fields: [contactId], references: [id])
+  items                 OrderItem[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id        String  @id @default(uuid())
+  orderId   String  @map("order_id")
+  productId String  @map("product_id")
+  quantity  Int
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id])
+
+  @@unique([orderId, productId])
+  @@map("order_items")
+}

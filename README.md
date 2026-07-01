@@ -1,6 +1,6 @@
 # artos-rest-api
 
-REST API and partner order form for submitting orders to a bakery. Backend and frontend live in one project.
+REST API and order form for submitting orders to a bakery. Backend and frontend live in one project.
 
 ## Project structure
 
@@ -20,7 +20,7 @@ REST API and partner order form for submitting orders to a bakery. Backend and f
 - **Database:** PostgreSQL
 - **ORM & migrations:** Prisma
 - **Validation:** Zod
-- **Authentication:** API key (partner header)
+- **Authentication:** API key (`X-API-Key` header, per user)
 - **Testing:** Vitest, Supertest
 - **Local database:** Docker Compose
 
@@ -30,16 +30,38 @@ REST API and partner order form for submitting orders to a bakery. Backend and f
 - Vite
 - TypeScript
 
-## Setup (Phase 1)
+## Setup
 
-Requires Node.js 20+.
+Requires Node.js 20+ and Docker.
+
+### Phase 1 — API
 
 ```bash
 npm install
 npm run dev
 ```
 
-The API starts on `http://localhost:3000`. Endpoints will be added in later phases.
+The API starts on `http://localhost:3000`.
+
+### Phase 2 — Database
+
+```bash
+npm run db:up
+npm run db:wait
+npm run db:migrate
+npm run db:seed
+```
+
+When prompted for a migration name, use e.g. `init`.
+
+**Dev API keys (after seed):**
+
+| User | API key |
+|---------|---------|
+| Artos Wholesale | `dev-artos-key` |
+| Downtown Deli Co. | `dev-deli-key` |
+
+Use header: `X-API-Key: dev-artos-key`
 
 > **Note:** This project uses a committed `.env` file (no `.env.example`). That is intentional — this is a hobby project with local-only credentials, not a production setup.
 
@@ -51,4 +73,9 @@ The API starts on `http://localhost:3000`. Endpoints will be added in later phas
 | `npm run build` | Compile TypeScript to `dist/` |
 | `npm run start` | Run compiled API |
 | `npm test` | Run all tests |
-| `npm run db:up` | Start Postgres (Phase 2) |
+| `npm run db:up` | Start Postgres container |
+| `npm run db:down` | Stop Postgres container |
+| `npm run db:wait` | Wait until Postgres is ready |
+| `npm run db:migrate` | Run Prisma migrations |
+| `npm run db:seed` | Seed database with sample data |
+| `npm run db:reset` | Reset DB, migrate, and seed |
