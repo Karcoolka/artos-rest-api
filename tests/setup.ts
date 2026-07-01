@@ -1,1 +1,1 @@
-// Shared test setup (Phase 4).
+process.env.NODE_ENV ??= "test";
