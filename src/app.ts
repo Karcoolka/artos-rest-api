@@ -1,4 +1,6 @@
 import express from "express";
+import apiV1Routes from "./routes/api.v1.routes.js";
+import { errorHandler } from "./middleware/error-handler.js";
 
 export function createApp() {
   const app = express();
@@ -12,6 +14,10 @@ export function createApp() {
   app.get("/health", (_req, res) => {
     res.json({ status: "ok" });
   });
+
+  app.use("/api/v1", apiV1Routes);
+
+  app.use(errorHandler);
 
   return app;
 }

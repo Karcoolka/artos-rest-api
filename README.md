@@ -1,69 +1,92 @@
 # artos-rest-api
 
-REST API and order form for submitting orders to a bakery. Backend and frontend live in one project.
+REST API for business partners to submit bakery orders. Includes a partner order form (React) in the same repository.
 
-## Project structure
-
-- `src/` — Express API (TypeScript)
-- `client/` — Vite + React UI (TypeScript, Phase 5)
-- `prisma/` — database schema and seed (Phase 2)
-- `tests/` — unit, integration, and functional tests
-- `scripts/` — helper scripts (e.g. wait for Postgres)
+Partners authenticate with an API key, select a contact and products, and submit orders with a requested delivery date and pickup or delivery preference.
 
 ## Tech stack
 
-### Backend
+**Backend:** Node.js, TypeScript, Express, PostgreSQL, Prisma, Zod, Vitest, Supertest
 
-- **Runtime:** Node.js 20+
-- **Language:** TypeScript
-- **HTTP framework:** Express
-- **Database:** PostgreSQL
-- **ORM & migrations:** Prisma
-- **Validation:** Zod
-- **Authentication:** API key (`X-API-Key` header, per user)
-- **Testing:** Vitest, Supertest
-- **Local database:** Docker Compose
+**Frontend:** React, Vite, TypeScript
 
-### Frontend
+**Local development:** Docker Compose (PostgreSQL)
 
-- React
-- Vite
-- TypeScript
+## Project structure
 
-## Setup
+```
+src/           Express API
+client/        React partner UI
+prisma/        Schema, migrations, seed data
+tests/         Unit, integration, and API tests
+scripts/       Development helpers
+```
 
-Requires Node.js 20+ and Docker.
+## Getting started
 
-### Phase 1 — API
+**Requirements:** Node.js 20+, Docker
 
 ```bash
 npm install
-npm run dev
-```
 
-The API starts on `http://localhost:3000`.
-
-### Phase 2 — Database
-
-```bash
+# Start PostgreSQL (Linux: use sudo if Docker requires it)
 npm run db:up
 npm run db:wait
 npm run db:migrate
 npm run db:seed
+
+npm run dev
 ```
 
-When prompted for a migration name, use e.g. `init`.
+The API runs at `http://localhost:3000`.
 
-**Dev API keys (after seed):**
+On first migration, use the name `init` when prompted.
+
+### Development API keys
 
 | User | API key |
-|---------|---------|
+|------|---------|
 | Artos Wholesale | `dev-artos-key` |
 | Downtown Deli Co. | `dev-deli-key` |
 
-Use header: `X-API-Key: dev-artos-key`
+Pass the key in the `X-API-Key` request header. Contact and product UUIDs are printed after `npm run db:seed`, or browse data with `npx prisma studio`.
 
-> **Note:** This project uses a committed `.env` file (no `.env.example`). That is intentional — this is a hobby project with local-only credentials, not a production setup.
+## API
+
+All `/api/v1` routes require the `X-API-Key` header.
+
+Orders support full CRUD. Contacts and products are exposed as read-only catalog data for building an order.
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/api/v1/contacts` | List contacts for the authenticated user |
+| `GET` | `/api/v1/products` | List active products |
+| `GET` | `/api/v1/orders` | List orders |
+| `GET` | `/api/v1/orders/:id` | Get order by ID |
+| `POST` | `/api/v1/orders` | Create order |
+| `PATCH` | `/api/v1/orders/:id` | Update order (delivery date, fulfillment, notes) |
+| `DELETE` | `/api/v1/orders/:id` | Delete order |
+
+Only orders with status `submitted` can be updated or deleted.
+
+### Example: create order
+
+```bash
+curl -X POST http://localhost:3000/api/v1/orders \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: dev-artos-key" \
+  -d '{
+    "contactId": "<contact-uuid>",
+    "requestedDeliveryDate": "2026-07-10",
+    "fulfillment": "delivery",
+    "items": [
+      { "productId": "<product-uuid>", "quantity": 12 }
+    ],
+    "notes": "Deliver to loading dock B"
+  }'
+```
+
+Public routes (no API key): `GET /`, `GET /health`.
 
 ## Scripts
 
@@ -72,10 +95,14 @@ Use header: `X-API-Key: dev-artos-key`
 | `npm run dev` | Start API in watch mode |
 | `npm run build` | Compile TypeScript to `dist/` |
 | `npm run start` | Run compiled API |
-| `npm test` | Run all tests |
+| `npm test` | Run tests |
 | `npm run db:up` | Start Postgres container |
 | `npm run db:down` | Stop Postgres container |
 | `npm run db:wait` | Wait until Postgres is ready |
-| `npm run db:migrate` | Run Prisma migrations |
-| `npm run db:seed` | Seed database with sample data |
-| `npm run db:reset` | Reset DB, migrate, and seed |
+| `npm run db:migrate` | Apply Prisma migrations |
+| `npm run db:seed` | Load sample data |
+| `npm run db:reset` | Reset database, migrate, and seed |
+
+## Environment
+
+Configuration lives in `.env` (local development credentials only).
