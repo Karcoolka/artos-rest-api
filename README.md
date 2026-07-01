@@ -27,12 +27,11 @@ scripts/       Development helpers
 **Requirements:** Node.js 20+, Docker
 
 ```bash
-npm install
-npm install --prefix client
+npm run install:all
 
 # Start PostgreSQL
 npm run db:up
-# or: docker compose up -d postgres
+# Linux without docker group: sudo docker compose up -d postgres
 npm run db:wait
 npm run db:migrate
 npm run db:seed
@@ -101,10 +100,28 @@ curl -X POST http://localhost:3000/api/v1/orders \
 
 Public routes (no API key): `GET /`, `GET /health`.
 
+## Testing
+
+```bash
+npm test
+```
+
+Tests use a separate database (`artos_test`) so dev seed data in `artos` is not affected.
+
+| Layer | Command |
+|-------|---------|
+| All tests | `npm test` |
+| Unit only | `npm run test:unit` |
+| Integration | `npm run test:integration` |
+| API (Supertest) | `npm run test:functional` |
+
+Browse test data: `DATABASE_URL="postgresql://artos:artos@localhost:5432/artos_test?schema=public" npx prisma studio`
+
 ## Scripts
 
 | Script | Description |
 |--------|-------------|
+| `npm run install:all` | Install root and client dependencies |
 | `npm run dev` | Start API in watch mode |
 | `npm run dev:client` | Start Vite frontend |
 | `npm run dev:all` | Start API and frontend together |
@@ -119,8 +136,14 @@ Public routes (no API key): `GET /`, `GET /health`.
 | `npm run db:seed` | Load sample data |
 | `npm run db:reset` | Reset database, migrate, and seed |
 
-After running tests, dev API keys still work — tests use a separate `artos_test` database.
+Dev database: `artos`. Test database: `artos_test` (created automatically before `npm test`).
 
 ## Environment
 
 Configuration lives in `.env` (local development credentials only).
+
+| Variable | Purpose |
+|----------|---------|
+| `DATABASE_URL` | Dev API and Prisma Studio (`artos`) |
+| `TEST_DATABASE_URL` | Test suite (`artos_test`) |
+| `PORT` | API port (default `3000`) |
