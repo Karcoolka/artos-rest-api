@@ -14,7 +14,7 @@ async function ensureTestDatabaseExists() {
   });
 
   try {
-    const rows = await admin.$queryRaw<{ exists: boolean }[]>`
+    const rows = await admin.$queryRaw`
       SELECT EXISTS(
         SELECT 1 FROM pg_database WHERE datname = 'artos_test'
       ) AS "exists"
